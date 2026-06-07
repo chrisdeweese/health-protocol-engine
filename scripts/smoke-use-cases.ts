@@ -1,0 +1,805 @@
+import { apply, loadLibrary, UserProfileSchema } from "../src/index.js";
+import type { Category, PersonalizedStack, Protocol, UserProfileInput } from "../src/index.js";
+
+const library = await loadLibrary(process.cwd());
+
+const baseProfile = UserProfileSchema.parse({
+  user_id: "u_smoke_base",
+  goal: "general_longevity",
+  goal_pole: "baseline_blueprint",
+  sex: "male",
+  pregnant: false
+});
+
+const olderFocusedProfile = smokeProfile({
+  user_id: "u_smoke_older_focus",
+  age: 68,
+  flags: flagSet("insomnia jet_lag hypertension_focus ldl_focus vitamin_d_low magnesium_low b12_low statins nicotine_user")
+});
+
+const sleepDisordersProfile = smokeProfile({
+  user_id: "u_smoke_sleep_circadian_disorders",
+  age: 57,
+  flags: flagSet("clinician_managed insomnia chronic_insomnia sleep_efficiency_low pre_sleep_arousal cbti_access_limited insomnia_medication_candidate sleep_maintenance_insomnia sleep_onset_insomnia short_term_hypnotic_candidate trazodone_for_insomnia diphenhydramine_sleep_aid osa_risk high_osa_risk snoring witnessed_apnea daytime_sleepiness drowsy_driving delayed_sleep_phase evening_light_exposure light_box_ok jet_lag transmeridian_travel shift_worker night_shift shift_work_disorder excessive_sleepiness restless_legs rls low_ferritin rls_medication_candidate dopamine_agonist_use sedative_burden rem_sleep_behavior_disorder dream_enactment suspected_parasomnia rbd_medication_candidate rbd_clonazepam_candidate osa_diagnosed")
+});
+
+const pregnantProfile = smokeProfile({
+  user_id: "u_smoke_pregnant",
+  sex: "female",
+  pregnant: true
+});
+
+const muscleGainProfile = smokeProfile({
+  user_id: "u_smoke_muscle_gain",
+  goal: "muscle_gain"
+});
+
+const preventiveProfile = smokeProfile({
+  user_id: "u_smoke_preventive",
+  age: 52,
+  sex: "female",
+  flags: flagSet("elevated_office_bp ldl_focus hypertension_focus diabetes inflammation_focus colonoscopy_due lung_screening_eligible skin_cancer_high_risk performance_tracking")
+});
+
+const supplementProfile = smokeProfile({
+  user_id: "u_smoke_supplement",
+  goal: "muscle_gain",
+  age: 45,
+  flags: flagSet("low_calcium_intake osteoporosis_risk low_fruit_vegetable_intake iron_deficiency folate_low homocysteine_high protein_low performance_tracking endurance_focus caffeine_ok recovery_focus joint_focus glucose_focus ldl_focus inflammation_focus blood_pressure_focus cardiovascular_focus sleep_focus stress_focus cognitive_focus microbiome_focus recurrent_uti liver_focus longevity_experimental_ok detoxification_focus")
+});
+
+const lifestyleProfile = smokeProfile({
+  user_id: "u_smoke_lifestyle_recovery",
+  goal: "functional_longevity",
+  age: 66,
+  flags: flagSet("glucose_focus low_impact_preferred performance_tracking stairs_ok nature_focus social_exercise_preferred loaded_carry_ok home_training power_focus tendon_focus training_days mobility_focus mind_body_preferred core_focus gentle_movement_preferred recovery_focus manual_therapy_ok compression_ok cold_exposure_ok heat_therapy_ok skin_focus stress_focus hypertension_focus imagery_ok mood_focus sleep_focus evening_screens naps alcohol_user nicotine_user insomnia")
+});
+
+const nutritionProfile = smokeProfile({
+  user_id: "u_smoke_nutrition_metabolic",
+  goal: "weight_loss",
+  age: 58,
+  sex: "female",
+  flags: flagSet("fruit_focus low_fruit_vegetable_intake prebiotic_focus cooking_at_home mediterranean_focus food_variety_focus ultra_processed_focus food_environment_focus ldl_focus cardiovascular_focus blood_pressure_focus saturated_fat_focus omega3_food_focus low_mercury_focus hypertension_focus sodium_focus restaurant_meals glucose_focus added_sugar_focus satiety_focus mindful_eating meal_timing_focus early_tre_ok microbiome_focus fiber_focus legume_focus protein_focus dairy_ok lean_mass_focus plant_protein_focus")
+});
+
+const environmentProfile = smokeProfile({
+  user_id: "u_smoke_environment_prevention",
+  age: 63,
+  flags: flagSet("air_quality_focus allergy_asthma_focus wildfire_smoke_region outdoor_air_clean cooking_at_home gas_stove mold_moisture_risk visible_mold water_damage radon_high generator_use old_home renovation_planned lead_service_line_possible infant_child_home water_quality_focus lead_water_detected pfas_water_concern loud_noise_exposure concerts power_tools very_high_noise_exposure firearms_noise headphone_use hearing_concern occupational_noise outdoor_time skin_cancer_high_risk dry_skin skin_barrier_focus photoaging_focus oral_care_upgrade gingivitis_risk periodontal_risk caries_risk dry_mouth deep_molar_grooves bruxism")
+});
+
+const clinicalProfile = smokeProfile({
+  user_id: "u_smoke_clinical_therapy",
+  age: 62,
+  goal: "clinician_managed_cardiometabolic_risk",
+  flags: flagSet("clinician_managed primary_prevention_statin_candidate ascvd established_cvd very_high_ascvd_risk additional_ldl_lowering_needed hypertriglyceridemia secondary_prevention_ascvd hypertension_diagnosis ckd_albuminuria additional_bp_agent_needed resistant_hypertension type2_diabetes metformin_candidate ckd heart_failure high_ascvd_risk obesity obesity_pharmacotherapy_candidate weight_related_condition osa_diagnosed moderate_severe_osa cpap_intolerant positional_osa tobacco_user nrt_ok varenicline_ok bupropion_ok osteoporosis_diagnosis oral_bisphosphonate_ok high_fracture_risk very_high_fracture_risk")
+});
+
+const behavioralHealthProfile = smokeProfile({
+  user_id: "u_smoke_behavioral_health",
+  age: 44,
+  goal: "behavioral_health_recovery",
+  flags: flagSet("clinician_managed mental_health_screening depression_focus mood_focus major_depression anhedonia relationship_stressor practical_stressors antidepressant_candidate pain_comorbidity fatigue_anhedonia insomnia treatment_resistant_depression anxiety_focus gad somatic_tension panic_disorder social_anxiety avoidance_focus partial_response ptsd trauma_focused_therapy exposure_ready emdr_preferred ptsd_medication_candidate suicide_risk lethal_means_access substance_use_screening alcohol_user risky_drinking alcohol_use_disorder abstinence_goal supervised_disulfiram_candidate peer_support_ok opioid_exposure opioid_use_disorder overdose_risk buprenorphine_candidate methadone_candidate stimulant_use_disorder contingency_management_available")
+});
+
+const seriousMentalIllnessProfile = smokeProfile({
+  user_id: "u_smoke_serious_mental_illness_neurodevelopment",
+  age: 32,
+  sex: "female",
+  pregnant: false,
+  goal: "smi_neurodevelopment_recovery",
+  goal_pole: "stability_function_safety",
+  flags: flagSet("clinician_managed adhd adhd_suspected adult_adhd inattention_impairment hyperactivity_impulsivity executive_dysfunction organizational_impairment work_impairment school_impairment accommodations_needed stimulant_candidate lisdexamfetamine_adhd_candidate nonstimulant_candidate stimulant_not_tolerated adhd_medication substance_use_risk ocd bdd obsessions_compulsions family_available family_accommodation reassurance_seeking ssri_candidate moderate_severe_ocd ssri_nonresponse clomipramine_candidate bipolar_disorder mania hypomania reduced_sleep risky_behavior relapse_prevention_focus psychotherapy_preferred lithium_candidate lithium_use bipolar_depression lamotrigine_candidate valproate_candidate psychosis antipsychotic_candidate antipsychotic_use schizophrenia first_episode_psychosis early_psychosis delusions_hallucinations distressing_voices treatment_resistant_psychosis clozapine_candidate recurrent_suicidality lai_preferred nonadherence_relapse long_acting_injectable_candidate functional_recovery_goal smi metabolic_syndrome weight_gain hypertension_focus frequent_hospitalization poor_engagement homelessness_risk high_service_need smoking nrt_candidate suicide_risk crisis_safety_plan_needed", { childbearing_potential: false })
+});
+
+const autismIddProfile = smokeProfile({
+  user_id: "u_smoke_autism_idd_neurodevelopment",
+  age: 17,
+  sex: "unknown",
+  goal: "neurodevelopment_access_support",
+  goal_pole: "communication_function_safety",
+  flags: flagSet("clinician_managed autism autism_suspected autism_assessment_requested new_autism_diagnosis support_needs_assessment adaptive_function_concern communication_difficulty language_delay aac_needed sensory_overload environmental_adjustments_needed school_sensory_barrier school_support_needed iep_needed transition_planning_needed daily_living_support_needed ot_needed family_training_needed social_communication_support_needed social_skills_group_desired autistic_adult reasonable_adjustments_needed healthcare_access_barrier healthcare_communication_barrier employment_support_needed work_impairment job_coaching_needed cooccurring_conditions mental_health_concern learning_disability intellectual_disability idd behavior_challenges self_injury aggression rapid_escalation sudden_behavior_change positive_behavior_support_needed environmental_triggers crisis_safety_plan_needed suicide_risk severe_irritability severe_aggression severe_self_injury psychosocial_insufficient antipsychotic_use autism_antipsychotic_candidate screening_access_barrier dysphagia malnutrition_risk dental_access_barrier carer_support_needed caregiver_burden")
+});
+
+const mskPainProfile = smokeProfile({
+  user_id: "u_smoke_msk_pain_headache",
+  age: 70,
+  goal: "mobility_pain_function",
+  flags: flagSet("clinician_managed low_back_pain acute_low_back_pain chronic_low_back_pain recurrent_low_back_pain directional_preference_back_pain radiating_back_pain manual_therapy_ok nsaid_ok pain_medication_candidate chronic_pain pain_catastrophizing pain_cbt_ok mind_body_preferred inflammatory_pain_flare central_sensitization osteoarthritis knee_oa hip_oa hand_oa thumb_base_oa low_impact_preferred overweight knee_instability walking_pain topical_nsaid_ok systemic_nsaid_candidate knee_oa_flare fall_risk prior_fall home_safety_focus polypharmacy sedating_medications balance_focus gait_instability migraine recurrent_headache triptan_candidate gepant_candidate migraine_nausea migraine_prevention_candidate beta_blocker_ok topiramate_ok cgrp_prevention_candidate gepant_prevention_candidate chronic_migraine")
+});
+
+const gastroLiverProfile = smokeProfile({
+  user_id: "u_smoke_gastro_liver",
+  age: 48,
+  goal: "digestive_liver_health",
+  flags: flagSet("clinician_managed gerd reflux_symptoms nocturnal_reflux postprandial_reflux trigger_food_focus overweight ppi_candidate h2_blocker_candidate ibs ibs_c ibs_d ibs_pain low_fodmap_ok fiber_focus stress_focus rifaximin_candidate secretagogue_candidate constipation chronic_idiopathic_constipation peg_candidate constipation_rescue_needed defecatory_disorder chronic_diarrhea celiac_risk malabsorption confirmed_celiac lactose_intolerance_suspected lactose_intolerance masld fatty_liver metabolic_syndrome type2_diabetes liver_disease ibd ulcerative_colitis mild_moderate_uc moderate_severe_uc recurrent_cdiff fmt_candidate acute_diarrhea", { hbv_screened: false, hcv_screened: false })
+});
+
+const renalUrologicReproductiveProfile = smokeProfile({
+  user_id: "u_smoke_renal_urologic_reproductive",
+  age: 59,
+  sex: "male",
+  goal: "kidney_urologic_sexual_health",
+  flags: flagSet("clinician_managed ckd albuminuria ckd_albuminuria hypertension_diagnosis type2_diabetes sglt2_candidate finerenone_candidate kidney_stone_history recurrent_kidney_stones calcium_stone calcium_oxalate_stone recurrent_calcium_stones hyperoxaluria hypocitraturia hypercalciuria hyperuricosuria uric_acid_stone recurrent_uti uti_symptoms cranberry_ok postmenopausal gsm vaginal_estrogen_candidate methenamine_candidate antibiotic_prophylaxis_candidate oab urinary_incontinence urgency_incontinence sui beta3_candidate antimuscarinic_candidate ptns_candidate sui_surgery_candidate bph luts nocturia storage_luts alpha_blocker_candidate enlarged_prostate tadalafil_candidate refractory_luts ed erectile_dysfunction pde5_candidate daily_tadalafil_candidate low_testosterone_symptoms confirmed_testosterone_deficiency trt_candidate menopause vasomotor_symptoms vaginal_dryness dyspareunia gsm_prescription_candidate mht_candidate nonhormonal_vms_candidate")
+});
+
+const respiratoryAllergyProfile = smokeProfile({
+  user_id: "u_smoke_respiratory_allergy",
+  age: 61,
+  goal: "airway_allergy_resilience",
+  flags: flagSet("clinician_managed asthma wheeze chronic_cough uncontrolled_asthma exacerbation_history allergic_asthma trigger_exposure inhaler_use ics_candidate mart_candidate rescue_inhaler_needed lama_candidate severe_asthma asthma_biologic_candidate asthma_exacerbation copd chronic_dyspnea smoking_history frequent_exacerbations tobacco_user laba_lama_candidate triple_therapy_candidate dyspnea_burden post_exacerbation pulmonary_rehab_candidate severe_resting_hypoxemia chronic_hypercapnia niv_candidate chronic_bronchitis roflumilast_candidate azithromycin_candidate copd_exacerbation allergic_rhinitis immunotherapy_candidate nasal_congestion antihistamine_candidate urticaria anaphylaxis_risk food_allergy venom_allergy severe_allergy food_allergy_uncertain food_reintroduction_assessment venom_immunotherapy_candidate sinusitis chronic_rhinosinusitis nasal_polyps crs_biologic_candidate acute_bacterial_sinusitis unstable_airway_symptoms")
+});
+
+const dermatologyWoundProfile = smokeProfile({
+  user_id: "u_smoke_dermatology_wound",
+  age: 57,
+  sex: "female",
+  goal: "skin_wound_barrier_health",
+  flags: flagSet("clinician_managed acne inflammatory_acne moderate_acne severe_acne acne_scarring_risk topical_acne_candidate topical_antibiotic_candidate oral_antibiotic_candidate isotretinoin_candidate atopic_dermatitis eczema dry_skin skin_barrier_focus eczema_flare moderate_severe_eczema topical_steroid_candidate calcineurin_candidate eczema_biologic_candidate psoriasis moderate_severe_psoriasis psoriasis_topical_candidate phototherapy_candidate psoriasis_biologic_candidate rosacea sensitive_skin papulopustular_rosacea rosacea_oral_candidate rosacea_erythema laser_candidate actinic_keratosis skin_cancer_high_risk outdoor_time changing_skin_lesion ak_cryotherapy_candidate ak_field_therapy_candidate ak_photodynamic_candidate tinea athletes_foot onychomycosis oral_antifungal_candidate skin_abscess cellulitis hsv recurrent_hsv diabetes diabetic_foot_risk neuropathy diabetic_foot_ulcer wound_care_needed nonhealing_wound")
+});
+
+const hairScalpProfile = smokeProfile({
+  user_id: "u_smoke_hair_scalp",
+  age: 42,
+  sex: "male",
+  goal: "hair_scalp_health",
+  flags: flagSet("clinician_managed hair_loss hair_shedding alopecia hair_density_goal androgenetic_alopecia male_pattern_hair_loss topical_minoxidil_candidate finasteride_candidate oral_minoxidil_candidate light_device_ok prp_hair_candidate hair_transplant_interest alopecia_areata patchy_hair_loss sudden_hair_loss patchy_alopecia_areata intralesional_steroid_candidate minoxidil_adjunct_candidate severe_alopecia_areata jak_inhibitor_candidate traction_alopecia tight_hairstyles hairline_tension scarring_alopecia ccca scalp_pain loss_of_follicular_openings scarring_alopecia_treatment_candidate scalp_flaking scalp_itch dandruff seborrheic_dermatitis refractory_dandruff ketoconazole_candidate scalp_psoriasis psoriasis scalp_psoriasis_topical_candidate tinea_capitis_suspected")
+});
+
+const contraceptionProfile = smokeProfile({
+  user_id: "u_smoke_contraception",
+  age: 31,
+  sex: "female",
+  goal: "contraception_reproductive_autonomy",
+  goal_pole: "reproductive_autonomy",
+  flags: flagSet("clinician_managed contraception_focus birth_control_counseling_due pregnancy_prevention_focus method_change_desired contraception_start quick_start_contraception chc_interest estrogen_contraception_interest hormonal_contraception_interest pop_interest dmpa_interest injection_contraception_interest dmpa_use bone_density_concern method_side_effects contraception_followup_due hormonal_method_followup_due sexually_active sti_prevention_focus new_partner dual_method_interest larc_interest iud_interest implant_interest copper_iud_interest nonhormonal_iud_interest levonorgestrel_iud_interest hormonal_iud_interest heavy_menses low_maintenance_contraception emergency_contraception_need ec_advance_access unprotected_sex contraceptive_failure levonorgestrel_ec_candidate ulipristal_ec_candidate ec_copper_iud_candidate ongoing_contraception_after_ec nonhormonal_contraception_interest barrier_method_interest fertility_awareness_interest behavioral_contraception_interest postpartum lam_interest exclusive_breastfeeding permanent_contraception_interest vasectomy_interest tubal_permanent_contraception_interest")
+});
+
+const immunizationProfile = smokeProfile({
+  user_id: "u_smoke_immunization",
+  age: 56,
+  sex: "female",
+  pregnant: true,
+  goal: "immunization_prevention",
+  goal_pole: "immune_resilience",
+  flags: flagSet("clinician_managed vaccine_review_due vaccine_due immunization_catchup unknown_vaccine_history incomplete_vaccine_series multiple_vaccines_due shared_decision_vaccine borderline_vaccine_risk live_vaccine_candidate prior_vaccine_reaction preconception pregnancy_planning postpartum pregnancy_vaccine_review_due rsv_maternal_window rsv_vaccine_due rubella_varicella_immunity_unknown hbv_nonimmune hbv_vaccine_due newborn_household household_vulnerable_contact immunocompromised immunosuppressed chemotherapy transplant_candidate biologic_therapy_candidate jak_inhibitor_candidate methotrexate_use high_dose_steroid_use asplenia complement_deficiency complement_inhibitor chronic_liver_disease diabetes ckd pneumococcal_risk zoster_vaccine_due meningococcal_vaccine_due hib_vaccine_due hsct chronic_lung_disease chronic_heart_disease flu_vaccine_due covid_vaccine_due healthcare_personnel occupational_vaccine_review lab_worker blood_body_fluid_exposure_risk hbv_vaccine_nonresponder_review tdap_due tetanus_booster_due wound_tetanus_risk mmr_nonimmune varicella_nonimmune meningococcal_lab_worker rabies_lab_worker animal_worker international_travel travel_vaccine_review last_minute_travel accelerated_vaccine_schedule yellow_fever_travel_risk yellow_fever_certificate_required cholera_travel_risk outbreak_exposure vaccine_preventable_exposure measles_exposure hepatitis_a_exposure mpox_exposure hepa_travel_risk hbv_travel_risk polio_travel_risk typhoid_travel_risk japanese_encephalitis_travel_risk rabies_travel_risk tick_borne_encephalitis_travel_risk mpox_risk mpox_vaccine_eligible hpv_vaccine_due hpv_vaccine_candidate rsv_high_risk")
+});
+
+const perioperativeProfile = smokeProfile({
+  user_id: "u_smoke_perioperative",
+  age: 72,
+  sex: "female",
+  goal: "perioperative_resilience",
+  goal_pole: "surgical_recovery",
+  flags: flagSet("clinician_managed elective_surgery_planned major_surgery_planned surgical_consult surgery_planned elevated_risk_surgery cardiac_risk_factors heart_failure coronary_disease valvular_heart_disease tobacco_user smoking nicotine_user unhealthy_alcohol_use alcohol_user alcohol_withdrawal_risk malnutrition_risk low_protein_intake weight_loss high_blood_loss_surgery anemia iron_deficiency prehabilitation_candidate low_functional_capacity anesthesia_planned medication_review_due anticoagulant_use antiplatelet_use diabetes_medication_use polypharmacy sglt2_inhibitor_use glp1_receptor_agonist_use semaglutide_use tirzepatide_use postoperative_pain_plan_needed osa opioid_risk delirium_risk cognitive_impairment implant_surgery antibiotic_prophylaxis_indicated clean_contaminated_surgery long_operation hypothermia_risk diabetes hyperglycemia_risk insulin_use postoperative_recovery surgical_wound vte_risk orthopedic_surgery cancer_surgery prior_vte eras_pathway frailty high_risk_medications older_adult_surgery")
+});
+
+const gynecologicHealthProfile = smokeProfile({
+  user_id: "u_smoke_gynecologic_health",
+  age: 46,
+  sex: "female",
+  goal: "gynecologic_health",
+  goal_pole: "symptom_control_cancer_prevention",
+  flags: flagSet("clinician_managed reproductive_age aub heavy_menstrual_bleeding heavy_menses irregular_bleeding persistent_aub anemia iron_deficiency structural_cause_suspected fibroids fibroid_symptoms bulk_symptoms endometrial_cancer_risk txa_candidate nsaid_candidate dysmenorrhea menstrual_suppression_interest levonorgestrel_iud_interest iud_candidate endometriosis_suspected chronic_pelvic_pain pelvic_pain dyspareunia deep_endometriosis_suspected endometriosis_medical_treatment_failed gnrh_candidate laparoscopy_candidate symptomatic_fibroids_refractory procedure_interest vaginal_discharge vaginal_odor vulvar_itching sexually_active new_partner bv_diagnosed vvc_diagnosed trichomoniasis_diagnosed abnormal_cervical_screening hpv_positive asccp_colposcopy_threshold persistent_hpv_positive cin2plus hpv_vaccine_candidate", { hpv_vaccinated: false })
+});
+
+const hepatologyPancreatobiliaryProfile = smokeProfile({
+  user_id: "u_smoke_hepatology_pancreatobiliary",
+  age: 58,
+  sex: "female",
+  goal: "hepatology_pancreatobiliary",
+  goal_pole: "decompensation_cancer_recurrence_prevention",
+  flags: flagSet("clinician_managed cirrhosis advanced_liver_disease decompensated_cirrhosis portal_hypertension varices clinically_significant_portal_hypertension nsbb_candidate high_risk_varices ascites new_ascites worsening_ascites hospitalized_cirrhosis tense_ascites sbp_suspected sbp_history high_risk_ascites diuretic_candidate hepatic_encephalopathy recurrent_he overt_he sarcopenia_risk malnutrition_risk alcohol_user alcohol_related_liver_disease meld_high transplant_referral_needed hcv_antibody_positive hcv_rna_positive chronic_hepatitis_c hcv_treatment_candidate hbsag_positive chronic_hepatitis_b hbv_dna_positive hbv_treatment_indicated hbv_cirrhosis hbv_nonimmune hbv_vaccine_due cholestatic_liver_tests pbc_suspected pbc primary_biliary_cholangitis cholestatic_pruritus pruritus_pbc_psc psc primary_sclerosing_cholangitis dominant_stricture_suspected ibd refractory_pruritus recurrent_cholangitis biliary_colic gallstones symptomatic_gallstones recurrent_biliary_colic cholecystectomy_candidate gallstone_pancreatitis cholangitis common_bile_duct_stone biliary_obstruction pancreatitis_suspected acute_pancreatitis pancreatitis_hospitalized severe_hypertriglyceridemia triglyceride_pancreatitis recurrent_pancreatitis chronic_pancreatitis alcohol_related_pancreatitis smoking nrt_ok exocrine_pancreatic_insufficiency steatorrhea weight_loss", { hcv_screened: false, hbv_screened: false })
+});
+
+const eyeVisionProfile = smokeProfile({
+  user_id: "u_smoke_eye_vision",
+  age: 68,
+  goal: "vision_preservation",
+  flags: flagSet("clinician_managed vision_change eye_disease_risk outdoor_time cataract_risk amd_risk eye_hazard_work power_tools sports_eye_risk low_leafy_green_intake eye_nutrition_focus diabetes type2_diabetes diabetic_retinopathy diabetic_macular_edema vision_threatening_diabetic_retinopathy proliferative_diabetic_retinopathy retinal_laser_candidate diabetic_vision_impairment glaucoma ocular_hypertension glaucoma_risk open_angle_glaucoma glaucoma_drop_candidate additional_iop_lowering_needed slt_candidate glaucoma_drop_use amd intermediate_amd late_amd_one_eye wet_amd central_vision_change advanced_amd_vision_impairment dry_eye ocular_surface_symptoms contact_lens_user screen_heavy digital_eye_strain low_humidity_environment moderate_severe_dry_eye dry_eye_rx_candidate punctal_plug_candidate bacterial_conjunctivitis keratitis_concern cataract glare_disability cataract_surgery_candidate flashes_floaters curtain_vision_loss retinal_tear_risk retinal_tear retinal_detachment low_vision irreversible_vision_impairment")
+});
+
+const neurologyCognitiveProfile = smokeProfile({
+  user_id: "u_smoke_neurology_cognitive",
+  age: 72,
+  goal: "neurology_cognitive_function_safety",
+  flags: flagSet("clinician_managed cognitive_focus cognitive_concern memory_concern dementia_risk mci alzheimers_dementia mild_moderate_alzheimers moderate_severe_alzheimers early_alzheimers amyloid_confirmed anti_amyloid_candidate polypharmacy social_isolation hearing_concern vision_change stroke_risk stroke_history stroke_warning_symptoms tia_symptoms tia ischemic_stroke non_cardioembolic_stroke minor_ischemic_stroke high_risk_tia atrial_fibrillation high_intensity_statin_candidate symptomatic_carotid_stenosis post_stroke_deficit parkinson_disease gait_instability fall_risk balance_focus dysphagia hypophonia levodopa_candidate dopaminergic_adjunct_candidate advanced_parkinson dbs_candidate epilepsy seizure_history seizure_clusters prolonged_seizure_risk head_injury concussion mild_tbi worsening_concussion_symptoms")
+});
+
+const oncologySurvivorshipProfile = smokeProfile({
+  user_id: "u_smoke_oncology_survivorship",
+  age: 52,
+  sex: "female",
+  goal: "cancer_prevention_survivorship_function",
+  flags: flagSet("clinician_managed cancer_prevention_focus oncology_prevention_focus tobacco_user hpv_vaccine_due hbv_vaccine_due overweight processed_meat_intake high_red_meat_intake alcohol_user low_fiber_intake outdoor_time skin_cancer_high_risk indoor_tanning cancer_screening_navigation colorectal_cancer_risk colonoscopy_due breast_cancer_risk cervical_screening_due hpv_screening_due lung_screening_eligible family_history_breast_ovarian_pancreatic_prostate_cancer brca_ancestry_risk hereditary_cancer_risk_tool_positive brca_risk lynch_syndrome_risk cancer_survivor active_cancer_treatment post_cancer_treatment deconditioning sarcopenia_risk unintentional_weight_loss poor_appetite malnutrition_risk cancer_fatigue cancer_distress cancer_rehab_need functional_impairment lymph_node_surgery radiation_lymphedema_risk lymphedema compression_garment_candidate neurotoxic_chemotherapy cipn_symptoms painful_cipn duloxetine_candidate emetogenic_chemotherapy myelosuppressive_chemotherapy mucositis_risk_chemo anthracycline_exposure trastuzumab_exposure gonadotoxic_cancer_treatment_planned fertility_preservation_interest young_adult_cancer fertility_distress")
+});
+
+const infectiousTravelProfile = smokeProfile({
+  user_id: "u_smoke_infectious_travel",
+  age: 52,
+  sex: "female",
+  pregnant: true,
+  goal: "infection_prevention_travel_readiness",
+  flags: flagSet("clinician_managed sexually_active sti_screening_due new_partner multiple_partners msm prep_candidate prep_requested hiv_prevention_focus hiv_exposure_within_72h doxy_pep_candidate recent_bacterial_sti sti_diagnosed injection_drug_use shares_injection_equipment mpox_vaccine_eligible hepa_vaccine_due hbv_vaccine_due hbv_nonimmune tdap_due tetanus_booster_due mmr_nonimmune varicella_nonimmune zoster_vaccine_due pneumococcal_risk rsv_high_risk meningococcal_vaccine_due asplenia polio_vaccine_due international_travel travel_medicine_focus travel_vaccine_review polio_travel_risk typhoid_travel_risk yellow_fever_travel_risk yellow_fever_certificate_required japanese_encephalitis_travel_risk rabies_travel_risk malaria_travel_risk mosquito_tick_exposure arbovirus_travel_risk outdoor_sleeping_travel travelers_diarrhea_risk travelers_diarrhea_standby_candidate tb_exposure birth_or_residence_high_tb_country latent_tb_positive infection_prevention_focus respiratory_outbreak_risk immunocompromised crowded_indoor_exposure")
+});
+
+const perinatalProfile = smokeProfile({
+  user_id: "u_smoke_perinatal",
+  age: 34,
+  sex: "female",
+  pregnant: true,
+  goal: "pregnancy_postpartum_health",
+  medications: ["lamotrigine"],
+  flags: flagSet("clinician_managed preconception_focus trying_to_conceive interpregnancy_care vaccine_review_due prenatal_care pregnancy_hypertension_risk preeclampsia_risk preeclampsia_high_risk gdm_screen_due late_pregnancy severe_headache pregnancy_nutrition_focus low_choline_intake pregnancy_food_safety_focus urinary_incontinence pelvic_floor_focus pregnancy_oral_health_focus nausea_vomiting_pregnancy rsv_season postpartum hypertensive_disorder_pregnancy postpartum_mood_symptoms breastfeeding birth_spacing_focus")
+});
+
+const endocrineReproductiveProfile = smokeProfile({
+  user_id: "u_smoke_endocrine_reproductive",
+  age: 39,
+  sex: "female",
+  pregnant: false,
+  goal: "endocrine_reproductive_metabolic_health",
+  flags: flagSet("clinician_managed thyroid_symptoms hypothyroid hashimoto abnormal_tsh autoimmune_thyroid_suspected overt_hypothyroid levothyroxine_candidate hyperthyroid_symptoms graves_disease graves_suspected low_tsh hyperthyroid_tachycardia antithyroid_drug_candidate radioiodine_candidate thyroid_surgery_candidate large_goiter compressing_goiter graves_eye_symptoms thyroid_nodule suspicious_thyroid_ultrasound thyroid_nodule_fna_indicated thyroid_cancer_suspected adrenal_insufficiency_symptoms primary_adrenal_insufficiency adrenal_crisis_risk chronic_glucocorticoid_use hydrocortisone_replacement_candidate mineralocorticoid_replacement_candidate pcos pcos_suspected androgen_excess irregular_menses insulin_resistance metformin_candidate pcos_cycle_control_needed pcos_hyperandrogenism infrequent_menses hirsutism infertility anovulation anovulatory_infertility pregnancy_excluded letrozole_candidate male_factor_risk tubal_factor_risk uterine_factor_risk art_candidate ivf_interest", { trying_to_conceive: false })
+});
+
+const geriatricProfile = smokeProfile({
+  user_id: "u_smoke_geriatric",
+  age: 82,
+  sex: "female",
+  goal: "healthy_aging_independence",
+  flags: flagSet("frailty_risk multimorbidity functional_decline caregiver_support_needed caregiver_concern sarcopenia_risk weakness prior_fall fall_risk balance_problem home_hazard_risk dizziness syncope foot_pain unsafe_footwear mobility_aid_use gait_instability driving_safety_concern vision_impairment polypharmacy high_risk_medication sedating_medications anticholinergic_burden benzodiazepine_use malnutrition_risk unintentional_weight_loss poor_appetite low_fluid_intake dehydration_risk diuretic_use recurrent_uti serious_illness advance_care_planning_due caregiver_burden high_symptom_burden recurrent_hospitalization dementia alzheimers_dementia advanced_dementia feeding_difficulty aspiration_risk hospitalized acute_illness delirium_risk cognitive_impairment immobile pressure_injury_risk")
+});
+
+const oralHealthProfile = smokeProfile({
+  user_id: "u_smoke_oral_health",
+  age: 72,
+  sex: "female",
+  goal: "oral_system_health",
+  flags: flagSet("clinician_managed periodontal_risk gingivitis_risk periodontitis deep_periodontal_pockets prior_scaling_root_planing diabetes poor_glycemic_control caries_risk root_caries_risk high_caries_risk active_caries sdf_candidate restorative_delay dry_mouth xerostomia severe_xerostomia sjogrens tobacco_user alcohol_user hpv_vaccine_due suspicious_oral_lesion persistent_oral_ulcer dental_pain toothache dental_swelling dental_abscess nsaid_ok acetaminophen_ok dental_opioid_prescribed prosthetic_joint dental_procedure_planned denture_user caregiver_support impaired_dexterity cognitive_impairment tmj_pain bruxism tooth_wear contact_sport")
+});
+
+const hydrationThermoregulationBreathProfile = smokeProfile({
+  user_id: "u_smoke_hydration_thermoregulation_breath",
+  age: 45,
+  goal: "hydration_heat_cold_breath_resilience",
+  flags: flagSet("hydration_focus dehydration_risk heat_exposure exercise_hydration_focus sugary_drinks glucose_focus water_quality_focus endurance_training long_training_session hot_training heavy_sweater heat_wave outdoor_worker heat_medication_risk sauna_user cold_exposure_ok recovery_focus cold_water_exposure winter_weather_exposure stress_focus hypertension_focus hrv_focus biofeedback_ok dyspnea chronic_lung_disease intense_breathwork")
+});
+
+const socialPurposeGriefCaregiverProfile = smokeProfile({
+  user_id: "u_smoke_social_purpose_grief_caregiver",
+  age: 76,
+  goal: "social_connection_purpose_grief_caregiver_resilience",
+  flags: flagSet("social_health_focus loneliness social_isolation group_activity_ok meal_loneliness passive_social_media digital_barrier remote_family transportation_barrier mobility_limited hearing_concern communication_barrier chronic_condition multimorbidity chronic_condition_isolation unmet_practical_needs home_support_needed purpose_focus retirement_transition volunteering_ok intergenerational_ok faith_community_ok workplace_isolation bereavement grief anniversary_grief grief_group_ok prolonged_grief grief_impairment complicated_grief_therapy_ok resource_navigation_needed exploitation_risk caregiver caregiver_burden caregiver_support_needed respite_needed dementia serious_illness caregiver_peer_support_ok safeguarding_concern dependent_adult")
+});
+
+const hearingTinnitusVestibularProfile = smokeProfile({
+  user_id: "u_smoke_hearing_tinnitus_vestibular",
+  age: 72,
+  goal: "hearing_tinnitus_vestibular_communication_safety",
+  flags: flagSet("clinician_managed hearing_concern hearing_loss communication_barrier device_interest mild_moderate_hearing_loss otc_hearing_aid_ok prescription_hearing_aid_candidate hearing_aid_user speech_in_noise_difficulty severe_hearing_loss poor_aided_speech_understanding loud_noise_exposure concerts power_tools occupational_noise very_high_noise_exposure firearms_noise headphone_use tinnitus bothersome_tinnitus tinnitus_distress tinnitus_sleep_impact pulsatile_tinnitus unilateral_tinnitus asymmetric_hearing_loss social_isolation ear_fullness cerumen_history cerumen_impaction qtip_use sudden_hearing_loss sudden_sensorineural_hearing_loss sudden_unilateral_hearing_loss acute_severe_dizziness neurologic_symptoms positional_vertigo bppv positive_dix_hallpike vestibular_hypofunction chronic_dizziness balance_problem vestibular_suppressant_use meclizine_use meniere_disease fluctuating_hearing_vertigo vestibular_migraine dizziness vertigo fall_risk")
+});
+
+const workplaceErgonomicsProfile = smokeProfile({
+  user_id: "u_smoke_workplace_ergonomics",
+  age: 49,
+  goal: "work_capacity_ergonomics_fatigue_stress",
+  flags: flagSet("workplace_health_focus desk_worker screen_work remote_worker keyboard_mouse_work eye_strain dry_eye neck_discomfort wrist_discomfort back_discomfort repetitive_computer_work data_entry sedentary_work prolonged_sitting static_posture sit_stand_desk workplace_activity_focus msd_symptoms ergonomic_training_needed new_workstation workplace_safety_feedback manual_handling_work lifting_work warehouse_worker heavy_lifting patient_handling high_risk_lifting_task cart_handling push_pull_work forceful_repetition repetitive_manual_work vibration_tool_use power_tool_work laboratory_worker pipetting_work microscope_work new_manual_task near_miss work_fatigue shift_worker night_shift rotating_shift long_work_hours overtime drowsy_driving safety_sensitive_work heavy_equipment driving_work fatigue_incident_risk work_stress burnout_risk excessive_workload low_job_control role_ambiguity low_work_support workplace_isolation workplace_bullying harassment workplace_violence_risk work_distress_impairment depression_focus anxiety_focus work_limiting_symptoms work_injury_recovery disability_accommodation_needed new_task_after_injury repetitive_work_trigger return_to_work_anxiety")
+});
+
+const injuryPreventionProfile = smokeProfile({
+  user_id: "u_smoke_home_community_injury_prevention",
+  age: 44,
+  goal: "home_community_transport_water_fire_poison_safety",
+  flags: flagSet("injury_prevention_focus transportation_safety_focus drives_or_rides_in_vehicle driver commuter distracted_driving_risk alcohol_user cannabis_user impairing_medications nightlife drowsy_driving sleep_deprived_driver shift_worker motorcycle_rider bicycle_rider scooter_rider walks_near_traffic night_walking pedestrian_commute parent_caregiver child_passenger child_transport water_safety_focus swim_skill_gap child_water_exposure boating open_water_swimming natural_water_activity weak_swimmer pool_owner home_pool child_home_pool_access water_recreation home_safety_focus fire_safety_focus homeowner family_household cooking_at_home burn_risk fire_extinguisher_available fuel_burning_appliance generator_use child_in_home small_child_home older_adult_medications cleaning_chemicals_home poisoning_risk button_battery_devices firearm_in_home firearm_access suicide_risk household_member_crisis overdose_risk opioid_exposure emergency_response_focus emergency_preparedness_focus high_risk_household remote_outdoor_activity high_risk_work_or_hobby disaster_risk_region power_outage_risk")
+});
+
+const domesticFoodSafetyProfile = smokeProfile({
+  user_id: "u_smoke_domestic_food_safety",
+  age: 68,
+  sex: "female",
+  pregnant: true,
+  goal: "domestic_foodborne_illness_prevention",
+  flags: flagSet("food_safety_focus cooking_at_home family_household produce_prep raw_meat_prep poultry_prep seafood_prep leftovers meal_prep frozen_food_prep high_risk_foodborne_illness high_risk_household immunocompromised young_child_home raw_milk_use raw_sprouts deli_meat_intake hot_dog_intake runny_egg_intake raw_egg_foods baking_with_children raw_cookie_dough_intake raw_oyster_intake raw_shellfish_intake pregnancy_food_safety_focus gastroenteritis_household norovirus_exposure vomiting_diarrhea food_worker shared_meal_prep vomit_cleanup acute_diarrhea outdoor_meals picnic cookout power_outage_risk generator_use emergency_preparedness_focus home_canning food_preservation low_acid_canning canned_food_damage food_allergy severe_allergy anaphylaxis_risk allergen_cross_contact_risk confirmed_celiac celiac_labeling_focus gluten_exposure_concern celiac_followup_due")
+});
+
+const pediatricAdolescentProfile = smokeProfile({
+  user_id: "u_smoke_pediatric_adolescent_prevention",
+  age: 15,
+  goal: "pediatric_adolescent_preventive_health",
+  flags: flagSet("pediatric_prevention_focus adolescent adolescent_preventive_focus well_child_due infant toddler parent_caregiver child_development_focus developmental_concern developmental_screen_due autism_screen_due school_age_child hearing_concern vision_concern lead_exposure_risk old_home routine_vaccine_due adolescent_vaccine_due immunization_catchup newborn_home safe_sleep_focus child_passenger child_transport tooth_eruption child_oral_health_focus caries_risk_child child_lifestyle_focus child_sleep_focus adolescent_sleep_focus low_physical_activity_child screen_time_concern child_nutrition_focus high_bmi_child teen_mental_health_focus depression_screen_due anxiety_screen_due suicide_risk substance_use_risk vaping_risk sexually_active sti_risk hiv_screening_due sti_screening_due school_stress school_connectedness_focus bullying_concern youth_sports contact_sport concussion_concern bicycle_rider")
+});
+
+const diabetesSelfManagementProfile = smokeProfile({
+  user_id: "u_smoke_diabetes_prevention_self_management",
+  age: 58,
+  goal: "diabetes_prevention_self_management",
+  flags: flagSet("clinician_managed prediabetes diabetes_risk type2_prevention_focus gdm_history metabolic_syndrome overweight dpp_eligible diabetes type2_diabetes new_diabetes_diagnosis glycemic_control_focus postprandial_hyperglycemia carbohydrate_counting_needed low_physical_activity insulin_resistance glucose_focus diabetes_medication_use medication_access_barrier treatment_burden diabetes_distress burnout self_management_burden hypertension_focus elevated_office_bp ckd hypoglycemia_risk a1c_monitoring_due therapy_change insulin_use smbg_needed medication_hypoglycemia_risk cgm_candidate cgm_use glucose_variability type1_diabetes pump_candidate aid_candidate problematic_hypoglycemia sulfonylurea_use severe_hypoglycemia_history sick_day_plan_needed sglt2_inhibitor_use insulin_injections unexplained_glucose_variability pump_use travel emergency_preparedness_focus ascvd_risk diabetic_retinopathy diabetic_foot_risk neuropathy prior_foot_ulcer foot_deformity periodontal_risk poor_glycemic_control vaccine_review_due flu_vaccine_due covid_vaccine_due pneumococcal_risk hbv_vaccine_due hbv_nonimmune")
+});
+
+const cardiologyManagementProfile = smokeProfile({
+  user_id: "u_smoke_cardiology_management",
+  age: 67,
+  goal: "cardiovascular_disease_management",
+  flags: flagSet("clinician_managed heart_failure hfref hfpef volume_overload congestion_history heart_failure_gdmt_review_due arni_candidate beta_blocker_candidate mra_candidate sglt2_candidate diuretic_needed hypotension_risk hypertension_focus hf_recent_hospitalization post_discharge stable_heart_failure hf_cardiac_rehab_candidate low_ef wide_qrs icd_crt_review_due advanced_heart_failure high_symptom_burden goals_of_care_review_due atrial_fibrillation suspected_af palpitations af_stroke_risk_review_due anticoagulation_candidate rapid_ventricular_response rate_control_needed rhythm_control_needed antiarrhythmic_candidate symptomatic_af ablation_candidate af_risk_factor_focus long_term_anticoagulation_contraindicated major_bleeding_history laao_candidate elevated_office_bp osa_risk snoring obesity coronary_disease angina chest_pain post_mi post_pci post_cabg stable_angina cardiac_rehab_candidate nitroglycerin_candidate antianginal_needed ascvd refractory_angina high_risk_ischemia revascularization_candidate return_to_activity_after_cardiac_event valvular_heart_disease aortic_stenosis mitral_regurgitation prosthetic_valve syncope exertional_chest_pain severe_aortic_stenosis symptomatic_aortic_stenosis valve_intervention_candidate mechanical_valve prior_endocarditis high_risk_endocarditis_condition invasive_dental_work_planned")
+});
+
+const rheumatologyAutoimmuneProfile = smokeProfile({
+  user_id: "u_smoke_rheumatology_autoimmune",
+  age: 55,
+  sex: "female",
+  pregnant: false,
+  goal: "rheumatology_autoimmune_resilience",
+  flags: flagSet("clinician_managed inflammatory_arthritis suspected_ra persistent_synovitis rheumatoid_arthritis ra_active methotrexate_candidate methotrexate_use ra_hand_function_limit hand_synovitis csdmard_escalation_needed active_ra_despite_mtx biologic_dmard_candidate active_ra_despite_csdmard dmard_use pregnancy_possible teratogenic_dmard_use gout hyperuricemia_monitoring ult_candidate tophi recurrent_gout_flares ckd allopurinol_candidate hla_b5801_risk_ancestry high_risk_allopurinol gout_flare flare_plan_needed starting_ult ult_titration hyperuricemia metabolic_syndrome colchicine_candidate psoriatic_arthritis psoriasis_joint_pain dactylitis enthesitis psoriasis tnf_biologic_candidate interleukin_biologic_candidate axial_spa inflammatory_back_pain ankylosing_spondylitis axial_spa_biologic_candidate uveitis_history ibd sle lupus hydroxychloroquine_candidate hydroxychloroquine_use glucocorticoid_use active_sle steroid_toxicity_risk biologic_sle_candidate lupus_nephritis proteinuria nephritis_immunosuppression_candidate immunosuppression targeted_dmard_candidate vaccine_review_due flu_vaccine_due covid_vaccine_due zoster_vaccine_due pneumococcal_risk chronic_glucocorticoid high_fracture_risk oral_bisphosphonate_ok")
+});
+
+const hematologyBloodHealthProfile = smokeProfile({
+  user_id: "u_smoke_hematology_blood_health",
+  age: 42,
+  sex: "female",
+  pregnant: true,
+  goal: "hematology_blood_health",
+  flags: flagSet("clinician_managed anemia low_hemoglobin macrocytosis microcytosis anemia_workup iron_deficiency low_ferritin iron_deficiency_anemia gi_bleeding postmenopausal recurrent_iron_deficiency oral_iron_failed malabsorption rapid_iron_repletion_needed ibd ckd b12_deficiency_risk neuropathy vegan metformin_use ppi_use b12_deficiency pernicious_anemia folate_deficiency low_folate hemolysis_suspected jaundice_anemia dark_urine_anemia high_reticulocytes chronic_inflammation cancer normocytic_anemia suspected_vte suspected_dvt suspected_pe leg_swelling_pain vte_imaging_needed dyspnea_chest_pain_vte vte anticoagulation_candidate doac_candidate active_cancer lmwh_preferred recent_dvt recent_pe extended_anticoagulation_review_due post_thrombotic_syndrome unprovoked_vte recurrent_vte family_history_vte thrombophilia_testing_requested anticoagulant_use doac_use warfarin_use lmwh_use bleeding_risk thrombocytopenia major_bleeding anticoagulant_reversal_needed emergency_procedure_anticoagulated heparin_exposure platelet_drop new_thrombosis_on_heparin transfusion_considered preprocedure_anemia patient_blood_management severe_anemia inpatient_anemia elective_surgery_planned high_blood_loss_procedure transfusion_history chronic_transfusion itp easy_bruising mucosal_bleeding itp_treatment_indicated low_platelets_bleeding_risk active_bleeding urgent_procedure rapid_platelet_rise_needed persistent_itp chronic_itp steroid_dependent_itp sickle_cell_disease scd functional_asplenia pneumococcal_risk flu_vaccine_due child_under_five hydroxyurea_candidate recurrent_vaso_occlusive_pain acute_chest_history hydroxyurea_use child_scd tcd_screen_due hbss abnormal_tcd prior_sickle_stroke chronic_transfusion_candidate cognitive_concern silent_infarct_screen_due prior_silent_infarct vaso_occlusive_pain")
+});
+
+const vascularMedicineProfile = smokeProfile({
+  user_id: "u_smoke_vascular_medicine",
+  age: 70,
+  sex: "male",
+  pregnant: false,
+  goal: "vascular_medicine_limb_aortic_venous_health",
+  flags: flagSet("clinician_managed suspected_pad pad claudication diminished_pulses exertional_leg_symptoms noncompressible_arteries resting_abi_nondiagnostic post_lower_extremity_revascularization high_limb_event_risk hypertension_focus elevated_office_bp tobacco_user nrt_ok varenicline_ok walking_limitation cilostazol_candidate diabetes foot_ulcer_risk diabetic_foot_risk foot_deformity clti rest_pain tissue_loss nonhealing_foot_wound foot_infection revascularization_candidate failed_exercise_gdmt bypass_graft post_pad_stent ever_smoker aaa_screen_due aaa abdominal_aortic_aneurysm aaa_surveillance_due thoracic_aortic_aneurysm aortic_root_dilation bicuspid_aortic_valve_aortopathy post_aortic_repair sudden_severe_chest_back_pain suspected_aortic_dissection malperfusion_symptoms symptomatic_aneurysm aortic_aneurysm aortic_dissection_history genetic_aortopathy aortic_atherosclerosis ascvd family_history_aortic_dissection early_aortic_disease large_aortic_aneurysm rapid_aortic_growth aortic_repair_candidate post_aortic_repair_complication carotid_stenosis carotid_bruit tia ischemic_stroke symptomatic_carotid_stenosis carotid_atherosclerosis carotid_revascularization_candidate varicose_veins venous_insufficiency venous_leg_ulcer leg_heaviness_swelling compression_preferred axial_reflux venous_intervention_candidate venous_ulcer nonhealing_leg_wound wound_care_needed superficial_venous_reflux compression_candidate mixed_arterial_venous_ulcer lymphedema chronic_limb_edema lymphedema_symptoms radiation_lymphedema_risk moderate_lymphedema cdt_candidate compression_garment_candidate cellulitis_history obesity lymphedema_exercise_focus", { high_bleeding_risk: false, heart_failure: false })
+});
+
+const cardiometabolicRiskProfile = smokeProfile({
+  user_id: "u_smoke_cardiometabolic_risk",
+  age: 58,
+  sex: "female",
+  pregnant: false,
+  goal: "advanced_cardiometabolic_risk_stratification",
+  flags: flagSet("clinician_managed ckm_risk_focus high_ascvd_risk ldl_focus hypertriglyceridemia triglycerides_high metabolic_syndrome diabetes type2_diabetes ckd ascvd obesity overweight central_adiposity insulin_resistance prediabetes hypertension_focus elevated_office_bp osa_risk snoring resistant_hypertension medication_access_barrier food_insecurity family_history_premature_ascvd intermediate_ascvd_risk borderline_ascvd_risk chronic_inflammatory_condition autoimmune_disease preeclampsia_history premature_menopause south_asian_ancestry severe_hypercholesterolemia ldl_c_190_or_higher xanthomas statin_decision_uncertain lipid_treatment statin_use lipid_medication_change primary_prevention_statin_candidate very_high_ascvd_risk additional_ldl_lowering_needed statin_intolerant statin_muscle_symptoms atherogenic_dyslipidemia discordant_lipids obesity_pharmacotherapy_candidate established_cvd weight_related_condition type2_prevention_focus lifestyle_program_preferred moderate_severe_osa bariatric_surgery_candidate severe_obesity severe_weight_related_complication metabolic_disease bmi_30_349 non_surgical_treatment_inadequate fatty_liver masld nafld fib4_elevated fib4_indeterminate advanced_fibrosis_risk persistent_alt_elevation alcohol_user caffeine_ok", { insomnia: false, gerd: false })
+});
+
+const eatingDisorderRedsProfile = smokeProfile({
+  user_id: "u_smoke_eating_disorder_reds",
+  age: 17,
+  sex: "female",
+  pregnant: false,
+  goal: "eating_disorder_reds_recovery",
+  goal_pole: "medical_safety_and_recovery",
+  flags: flagSet("clinician_managed eating_disorder_risk restrictive_eating anorexia_nervosa underweight rapid_weight_loss bradycardia orthostatic_symptoms syncope electrolyte_abnormality purging self_induced_vomiting laxative_misuse dental_erosion amenorrhea low_bone_density_risk suicide_risk self_harm family_available binge_eating bed binge_eating_disorder bulimia_nervosa fluoxetine_candidate arfid selective_eating nutritional_deficiency growth_faltering low_energy_availability reds athlete female_athlete_triad high_training_load return_to_sport_needed compulsive_exercise severe_meal_anxiety weight_restoration_stalled weight_loss_goal obesity metabolic_syndrome")
+});
+
+const allProtocols = library.allProtocols();
+const blueprintProtocols = protocolsByPrefix("proto_blueprint_");
+const guidelineProtocols = protocolsByPrefix("proto_guideline_");
+const preventiveProtocols = protocolsByPrefix("proto_preventive_");
+const supplementProtocols = protocolsByPrefix("proto_supplement_");
+const lifestyleProtocols = protocolsByPrefix("proto_lifestyle_");
+const nutritionProtocols = protocolsByPrefix("proto_nutrition_");
+const environmentProtocols = protocolsByPrefix("proto_environment_");
+const clinicalProtocols = protocolsByPrefix("proto_clinical_");
+const behavioralHealthProtocols = protocolsByPrefix("proto_behavioral_health_");
+const seriousMentalIllnessProtocols = protocolsById([
+  "proto_behavioral_health_adhd_diagnosis_management",
+  "proto_behavioral_health_ocd_bdd_erp_pharmacology",
+  "proto_behavioral_health_bipolar_mood_stabilization_safety",
+  "proto_behavioral_health_psychosis_schizophrenia_early_episode",
+  "proto_behavioral_health_smi_metabolic_function_recovery"
+]);
+const autismIddProtocols = protocolsById([
+  "proto_neurodevelopment_autism_diagnosis_postdiagnostic",
+  "proto_neurodevelopment_autism_child_early_intervention_school",
+  "proto_neurodevelopment_autism_adult_health_employment",
+  "proto_neurodevelopment_autism_idd_behavior_safety_medication",
+  "proto_neurodevelopment_learning_disability_health_access"
+]);
+const mskProtocols = protocolsByPrefix("proto_msk_");
+const gastroLiverProtocols = protocolsByPrefix("proto_gi_");
+const renalUrologicReproductiveProtocols = protocolsByPrefix(
+  "proto_renal_",
+  "proto_urologic_",
+  "proto_sexual_health_",
+  "proto_reproductive_"
+);
+const respiratoryAllergyProtocols = protocolsByPrefix("proto_respiratory_", "proto_allergy_");
+const dermatologyWoundProtocols = protocolsByPrefix("proto_derm_");
+const hairScalpProtocols = protocolsByPrefix("proto_hair_");
+const contraceptionProtocols = protocolsByPrefix("proto_contraception_");
+const immunizationProtocols = protocolsByPrefix("proto_immunization_");
+const perioperativeProtocols = protocolsByPrefix("proto_perioperative_");
+const gynecologicProtocols = protocolsByPrefix("proto_gynecology_");
+const hepatologyPancreatobiliaryProtocols = protocolsByPrefix("proto_hepatology_", "proto_pancreatobiliary_");
+const eyeVisionProtocols = protocolsByPrefix("proto_eye_");
+const neurologyCognitiveProtocols = protocolsByPrefix("proto_neuro_");
+const oncologySurvivorshipProtocols = protocolsByPrefix("proto_oncology_");
+const infectiousTravelProtocols = protocolsByPrefix("proto_infectious_");
+const perinatalProtocols = protocolsByPrefix("proto_perinatal_");
+const endocrineReproductiveProtocols = protocolsByMatch({
+  prefixes: ["proto_endocrine_", "proto_reproductive_pcos_"],
+  ids: ["proto_reproductive_infertility_evaluation_art"]
+});
+const geriatricProtocols = protocolsByPrefix("proto_geriatric_");
+const oralProtocols = protocolsByPrefix("proto_oral_");
+const sleepDisorderProtocols = protocolsByPrefix("proto_sleep_");
+const hydrationThermoregulationBreathProtocols = protocolsByPrefix(
+  "proto_hydration_",
+  "proto_temperature_",
+  "proto_breath_"
+);
+const socialPurposeGriefCaregiverProtocols = protocolsByPrefix(
+  "proto_social_",
+  "proto_purpose_",
+  "proto_grief_",
+  "proto_caregiver_"
+);
+const hearingTinnitusVestibularProtocols = protocolsByPrefix(
+  "proto_hearing_",
+  "proto_tinnitus_",
+  "proto_ear_",
+  "proto_vestibular_"
+);
+const workplaceErgonomicsProtocols = protocolsByPrefix("proto_workplace_");
+const injuryPreventionProtocols = protocolsByPrefix("proto_injury_");
+const domesticFoodSafetyProtocols = protocolsByPrefix("proto_food_safety_");
+const pediatricAdolescentProtocols = protocolsByPrefix("proto_pediatric_", "proto_adolescent_");
+const diabetesProtocols = protocolsByPrefix("proto_diabetes_");
+const cardiologyProtocols = protocolsByPrefix("proto_cardiology_");
+const rheumatologyProtocols = protocolsByPrefix("proto_rheum_");
+const hematologyProtocols = protocolsByPrefix("proto_hematology_");
+const vascularProtocols = protocolsByPrefix("proto_vascular_");
+const cardiometabolicProtocols = protocolsByPrefix("proto_cardiometabolic_");
+const eatingDisorderRedsProtocols = protocolsByPrefix("proto_eating_disorder_");
+
+const questions = {
+  counts: {
+    units: library.allUnits().length,
+    protocols: allProtocols.length,
+    categories: countBy(library.allUnits().map((unit) => unit.category))
+  },
+  lookup_examples: {
+    supplement_units: unitIdsByCategory("supplement"),
+    pharmaceutical_units: unitIdsByCategory("pharmaceutical"),
+    nad_precursor_units: unitIdsByMechanism("nad_precursor"),
+    circadian_units: unitIdsByMechanism("circadian_anchoring"),
+    cardiorenal_units: unitIdsByMechanism("cardiorenal_protection"),
+    trauma_focused_therapy_units: unitIdsByMechanism("trauma_cognitive_processing"),
+    fall_prevention_units: unitIdsByMechanism("fall_risk_reduction"),
+    migraine_prevention_units: unitIdsByMechanism("migraine_prevention"),
+    digestive_alarm_triage_units: unitIdsByMechanism("clinical_triage"),
+    liver_screening_units: unitIdsByMechanism("viral_hepatitis_screening"),
+    kidney_risk_units: unitIdsByMechanism("kidney_risk_stratification"),
+    pelvic_floor_units: unitIdsByMechanism("pelvic_floor_strengthening"),
+    airway_measurement_units: unitIdsByMechanism("airflow_measurement"),
+    anaphylaxis_rescue_units: unitIdsByMechanism("airway_edema_reversal"),
+    dermatology_barrier_units: unitIdsByMechanism("skin_barrier_support"),
+    wound_healing_units: unitIdsByMechanism("wound_healing_support"),
+    skin_infection_units: unitIdsByMechanism("bacterial_load_reduction"),
+    retinal_monitoring_units: unitIdsByMechanism("retinal_imaging"),
+    glaucoma_treatment_units: unitIdsByMechanism("intraocular_pressure_reduction"),
+    low_vision_units: unitIdsByMechanism("assistive_device_training"),
+    cognitive_screening_units: unitIdsByMechanism("cognitive_screening"),
+    secondary_stroke_units: unitIdsByMechanism("thrombotic_risk_reduction"),
+    parkinson_function_units: unitIdsByMechanism("motor_function_support"),
+    concussion_recovery_units: unitIdsByMechanism("graded_activity"),
+    cancer_prevention_units: unitIdsByMechanism("cancer_prevention"),
+    oncology_rehab_units: unitIdsByMechanism("rehabilitation"),
+    lymphedema_units: unitIdsByMechanism("lymphedema_management"),
+    hereditary_cancer_units: unitIdsByMechanism("genetic_risk_stratification"),
+    hiv_prevention_units: unitIdsByMechanism("hiv_prevention"),
+    sti_screening_units: unitIdsByMechanism("infection_screening"),
+    travel_medicine_units: unitIdsByMechanism("travel_risk_stratification"),
+    vector_prevention_units: unitIdsByMechanism("vector_borne_disease_prevention"),
+    tb_units: unitIdsByMechanism("active_tb_prevention"),
+    preconception_units: unitIdsByMechanism("preconception_planning"),
+    prenatal_screening_units: unitIdsByMechanism("prenatal_monitoring"),
+    pregnancy_nutrition_units: unitIdsByMechanism("neurodevelopment_support"),
+    postpartum_units: unitIdsByMechanism("postpartum_monitoring"),
+    lactation_units: unitIdsByMechanism("lactation_support"),
+    thyroid_units: unitIdsByMechanism("thyroid_function_assessment"),
+    adrenal_safety_units: unitIdsByMechanism("adrenal_crisis_treatment"),
+    pcos_units: unitIdsByMechanism("pcos_diagnostic_classification"),
+    fertility_units: unitIdsByMechanism("fertility_risk_stratification"),
+    geriatric_assessment_units: unitIdsByMechanism("comprehensive_geriatric_assessment"),
+    deprescribing_units: unitIdsByMechanism("deprescribing_review"),
+    geriatric_nutrition_units: unitIdsByMechanism("malnutrition_detection"),
+    advance_care_units: unitIdsByMechanism("advance_care_planning"),
+    delirium_units: unitIdsByMechanism("delirium_prevention"),
+    periodontal_units: unitIdsByMechanism("periodontal_monitoring"),
+    caries_treatment_units: unitIdsByMechanism("caries_arrest"),
+    oral_cancer_triage_units: unitIdsByMechanism("visual_tactile_screening"),
+    dental_stewardship_units: unitIdsByMechanism("antibiotic_stewardship"),
+    denture_care_units: unitIdsByMechanism("mucosal_rest"),
+    tmd_units: unitIdsByMechanism("load_management"),
+    sleep_pattern_units: unitIdsByMechanism("sleep_pattern_monitoring"),
+    osa_screening_units: unitIdsByMechanism("osa_screening"),
+    sleep_diagnostic_units: unitIdsByMechanism("sleep_disordered_breathing_detection"),
+    circadian_phase_units: unitIdsByMechanism("circadian_phase_shift"),
+    rls_management_units: unitIdsByMechanism("rls_symptom_reduction"),
+    parasomnia_safety_units: unitIdsByMechanism("parasomnia_safety"),
+    low_value_sedative_review_units: unitIdsByMechanism("sedative_burden_reduction"),
+    exercise_hydration_units: unitIdsByMechanism("exercise_hydration"),
+    heat_safety_units: unitIdsByAnyMechanism("heat_risk_stratification", "heat_acclimatization", "cooling_access", "heat_exposure_safety"),
+    cold_safety_units: unitIdsByAnyMechanism("cold_shock_risk_reduction", "hypothermia_prevention"),
+    breath_hrv_units: unitIdsByAnyMechanism("baroreflex_engagement", "biofeedback", "diaphragmatic_activation"),
+    social_risk_units: unitIdsByMechanism("social_risk_detection"),
+    social_prescribing_units: unitIdsByMechanism("social_prescribing"),
+    purpose_units: unitIdsByAnyMechanism("purpose", "generativity"),
+    grief_support_units: unitIdsByAnyMechanism("grief_processing", "grief_assessment", "loss_adaptation"),
+    caregiver_support_units: unitIdsByMechanism("caregiver_support"),
+    safeguarding_units: unitIdsByMechanism("safeguarding"),
+    hearing_rehabilitation_units: unitIdsByAnyMechanism("auditory_amplification", "communication_access", "assistive_listening"),
+    tinnitus_units: unitIdsByAnyMechanism("tinnitus_assessment", "sound_enrichment", "cognitive_reappraisal"),
+    cerumen_units: unitIdsByMechanism("cerumenolysis"),
+    sudden_hearing_loss_units: unitIdsByMechanism("inner_ear_edema_reduction"),
+    vestibular_rehab_units: unitIdsByMechanism("vestibular_compensation"),
+    bppv_units: unitIdsByMechanism("otoconia_repositioning"),
+    ergonomic_risk_units: unitIdsByMechanism("ergonomic_risk_assessment"),
+    manual_handling_units: unitIdsByMechanism("manual_handling_risk_reduction"),
+    work_fatigue_units: unitIdsByMechanism("fatigue_risk_management"),
+    psychosocial_work_units: unitIdsByMechanism("psychosocial_risk_assessment"),
+    work_accommodation_units: unitIdsByMechanism("work_accommodation"),
+    transportation_safety_units: unitIdsByMechanism("crash_injury_prevention"),
+    drowning_prevention_units: unitIdsByMechanism("drowning_prevention"),
+    fire_safety_units: unitIdsByMechanism("fire_detection"),
+    poison_prevention_units: unitIdsByMechanism("poisoning_prevention"),
+    firearm_safety_units: unitIdsByMechanism("firearm_injury_prevention"),
+    first_aid_readiness_units: unitIdsByMechanism("emergency_preparedness"),
+    domestic_food_safety_units: unitIdsByMechanism("foodborne_pathogen_prevention"),
+    food_temperature_control_units: unitIdsByMechanism("time_temperature_control"),
+    botulism_prevention_units: unitIdsByMechanism("botulism_prevention"),
+    food_allergy_cross_contact_units: unitIdsByMechanism("allergen_cross_contact_prevention"),
+    pediatric_development_units: unitIdsByAnyMechanism("developmental_surveillance", "developmental_screening", "autism_screening"),
+    pediatric_oral_units: unitIdsByAnyMechanism("caries_prevention", "fluoride_exposure"),
+    adolescent_mental_health_units: unitIdsByAnyMechanism("depression_screening", "anxiety_screening", "suicide_risk_screening"),
+    youth_sports_safety_units: unitIdsByAnyMechanism("concussion_recognition", "graded_return_to_play"),
+    school_connectedness_units: unitIdsByMechanism("social_connectedness"),
+    diabetes_prevention_units: unitIdsByMechanism("diabetes_prevention"),
+    diabetes_self_management_units: unitIdsByAnyMechanism("self_management", "problem_solving"),
+    diabetes_glycemic_monitoring_units: unitIdsByAnyMechanism("glycemic_monitoring", "continuous_feedback", "pattern_recognition"),
+    diabetes_hypoglycemia_safety_units: unitIdsByAnyMechanism("hypoglycemia_treatment", "hypoglycemia_detection", "acute_rescue"),
+    diabetes_foot_surveillance_units: unitIdsByAnyMechanism("foot_ulcer_prevention", "neuropathy_screening"),
+    heart_failure_management_units: unitIdsByAnyMechanism("heart_failure_self_management", "gdmt_optimization", "congestion_monitoring"),
+    atrial_fibrillation_units: unitIdsByAnyMechanism("rhythm_documentation", "stroke_risk_stratification", "rhythm_control", "rate_control"),
+    cardiac_rehab_units: unitIdsByMechanism("cardiac_rehabilitation"),
+    coronary_disease_units: unitIdsByAnyMechanism("secondary_prevention", "symptom_control", "ischemia_detection"),
+    valvular_heart_units: unitIdsByAnyMechanism("echocardiographic_surveillance", "structural_heart_intervention", "prosthetic_valve_thrombosis_prevention"),
+    rheumatoid_arthritis_units: unitIdsByAnyMechanism("treat_to_target", "antimetabolite_immunomodulation", "dmard"),
+    gout_units: unitIdsByAnyMechanism("urate_monitoring", "urate_lowering", "flare_prophylaxis"),
+    spondyloarthritis_units: unitIdsByAnyMechanism("multidomain_assessment", "axial_inflammation_control", "extraarticular_screening"),
+    lupus_units: unitIdsByAnyMechanism("disease_activity_monitoring", "toll_like_receptor_modulation", "renal_immunosuppression"),
+    rheum_safety_units: unitIdsByAnyMechanism("infection_screening", "vaccine_timing", "glucocorticoid_toxicity_reduction"),
+    anemia_units: unitIdsByAnyMechanism("anemia_classification", "iron_status_assessment", "cobalamin_status_assessment"),
+    vte_units: unitIdsByAnyMechanism("pretest_probability", "vte_treatment", "recurrence_prevention"),
+    anticoagulation_safety_units: unitIdsByAnyMechanism("medication_safety", "bleeding_risk_mitigation", "anticoagulant_reversal"),
+    transfusion_safety_units: unitIdsByAnyMechanism("transfusion_stewardship", "blood_compatibility_testing", "patient_blood_management"),
+    sickle_cell_units: unitIdsByAnyMechanism("comprehensive_care", "fetal_hemoglobin_induction", "stroke_risk_screening"),
+    pad_units: unitIdsByAnyMechanism("arterial_perfusion_assessment", "structured_exercise_therapy", "limb_surveillance"),
+    aortic_units: unitIdsByAnyMechanism("aneurysm_screening", "aneurysm_surveillance", "aortic_dissection_detection"),
+    carotid_units: unitIdsByAnyMechanism("large_artery_assessment", "large_artery_source_control", "stroke_risk_stratification"),
+    venous_disease_units: unitIdsByAnyMechanism("venous_reflux_mapping", "external_compression", "venous_reflux_source_control"),
+    lymphedema_expanded_units: unitIdsByAnyMechanism("lymphedema_management", "skin_barrier_protection", "muscle_pump_support"),
+    advanced_ascvd_risk_units: unitIdsByAnyMechanism("ckm_risk_prediction", "risk_reclassification", "genetic_lipid_risk_assessment"),
+    lipid_monitoring_units: unitIdsByAnyMechanism("lipid_modulation", "lipid_monitoring", "atherogenic_particle_burden"),
+    ckm_staging_units: unitIdsByAnyMechanism("ckm_staging", "metabolic_risk_clustering", "central_adiposity_assessment"),
+    masld_fibrosis_units: unitIdsByAnyMechanism("fibrosis_risk_stratification", "hepatic_fat_reduction", "hepatotoxin_reduction"),
+    eating_disorder_safety_units: unitIdsByAnyMechanism("eating_disorder_screening", "clinical_triage", "acute_safety"),
+    eating_disorder_therapy_units: unitIdsByAnyMechanism("eating_disorder_psychotherapy", "family_supported_meal_restoration", "binge_cycle_interruption", "graded_food_exposure"),
+    reds_units: unitIdsByAnyMechanism("low_energy_availability_detection", "energy_availability_restoration", "return_to_sport_risk_stratification"),
+    adhd_units: unitIdsByAnyMechanism("neurodevelopmental_assessment", "attention_regulation", "executive_function_scaffolding"),
+    ocd_units: unitIdsByAnyMechanism("exposure_response_prevention", "compulsion_reinforcement_reduction", "serotonin_reuptake_inhibition"),
+    bipolar_units: unitIdsByAnyMechanism("mood_stabilization", "therapeutic_drug_monitoring", "relapse_prevention"),
+    psychosis_smi_units: unitIdsByAnyMechanism("coordinated_specialty_care", "antipsychotic_monitoring", "psychosis_relapse_prevention", "functional_recovery"),
+    autism_communication_units: unitIdsByAnyMechanism("communication_access", "aac_matching", "speech_language_therapy"),
+    autism_behavior_support_units: unitIdsByAnyMechanism("functional_assessment", "positive_behavior_support", "reasonable_adjustment"),
+    hair_regrowth_units: unitIdsByAnyMechanism("hair_growth_cycle", "anagen_support", "5_alpha_reductase_inhibition"),
+    alopecia_areata_units: unitIdsByAnyMechanism("autoimmune_pattern_assessment", "jak_pathway_inhibition", "local_immunosuppression"),
+    scalp_condition_units: unitIdsByAnyMechanism("malassezia_control", "scale_softening", "dermatophyte_eradication"),
+    contraception_larc_units: unitIdsByAnyMechanism("long_acting_reversible_contraception", "procedure_access"),
+    emergency_contraception_units: unitIdsByAnyMechanism("emergency_contraception", "time_sensitive_access"),
+    contraception_eligibility_units: unitIdsByAnyMechanism("medical_eligibility_screening", "reproductive_autonomy"),
+    immunization_safety_units: unitIdsByAnyMechanism("contraindication_screening", "live_vaccine_safety", "timing_spacing_rules"),
+    travel_vaccine_units: unitIdsByAnyMechanism("travel_infection_prevention", "travel_risk_stratification"),
+    perioperative_safety_units: unitIdsByAnyMechanism("medication_safety", "infection_prevention", "delirium_prevention"),
+    perioperative_recovery_units: unitIdsByAnyMechanism("prehabilitation", "early_mobilization", "functional_recovery"),
+    gynecology_bleeding_units: unitIdsByAnyMechanism("symptom_pattern_tracking", "bleeding_reduction", "structural_cause_detection"),
+    vaginitis_units: unitIdsByAnyMechanism("microbiologic_diagnosis", "anaerobic_bacterial_load_reduction", "antifungal", "partner_management"),
+    cervical_abnormality_units: unitIdsByAnyMechanism("cancer_prevention", "tissue_diagnosis", "precancer_source_control"),
+    cirrhosis_complication_units: unitIdsByAnyMechanism("decompensation_detection", "portal_hypertension_risk_stratification", "variceal_bleeding_prevention", "liver_transplant_triage"),
+    viral_hepatitis_treatment_units: unitIdsByAnyMechanism("viral_hepatitis_confirmation", "viral_replication_inhibition", "curative_treatment"),
+    pancreatobiliary_source_control_units: unitIdsByAnyMechanism("biliary_source_control", "source_control", "etiology_detection")
+  },
+  protocol_sets: {
+    blueprint: protocolIds(blueprintProtocols),
+    guideline: protocolIds(guidelineProtocols),
+    preventive: protocolIds(preventiveProtocols),
+    supplement: protocolIds(supplementProtocols),
+    lifestyle: protocolIds(lifestyleProtocols),
+    nutrition: protocolIds(nutritionProtocols),
+    environment: protocolIds(environmentProtocols),
+    clinical: protocolIds(clinicalProtocols),
+    behavioral_health: protocolIds(behavioralHealthProtocols),
+    serious_mental_illness_neurodevelopment: protocolIds(seriousMentalIllnessProtocols),
+    autism_idd_neurodevelopment: protocolIds(autismIddProtocols),
+    musculoskeletal: protocolIds(mskProtocols),
+    gastrointestinal_liver: protocolIds(gastroLiverProtocols),
+    renal_urologic_reproductive: protocolIds(renalUrologicReproductiveProtocols),
+    respiratory_allergy: protocolIds(respiratoryAllergyProtocols),
+    dermatology_wound: protocolIds(dermatologyWoundProtocols),
+    hair_scalp: protocolIds(hairScalpProtocols),
+    contraception: protocolIds(contraceptionProtocols),
+    immunization: protocolIds(immunizationProtocols),
+    perioperative: protocolIds(perioperativeProtocols),
+    gynecologic: protocolIds(gynecologicProtocols),
+    hepatology_pancreatobiliary: protocolIds(hepatologyPancreatobiliaryProtocols),
+    eye_vision: protocolIds(eyeVisionProtocols),
+    neurology_cognitive: protocolIds(neurologyCognitiveProtocols),
+    oncology_survivorship: protocolIds(oncologySurvivorshipProtocols),
+    infectious_travel: protocolIds(infectiousTravelProtocols),
+    perinatal: protocolIds(perinatalProtocols),
+    endocrine_reproductive: protocolIds(endocrineReproductiveProtocols),
+    geriatric: protocolIds(geriatricProtocols),
+    oral: protocolIds(oralProtocols),
+    sleep_disorders: protocolIds(sleepDisorderProtocols),
+    hydration_thermoregulation_breath: protocolIds(hydrationThermoregulationBreathProtocols),
+    social_purpose_grief_caregiver: protocolIds(socialPurposeGriefCaregiverProtocols),
+    hearing_tinnitus_vestibular: protocolIds(hearingTinnitusVestibularProtocols),
+    workplace_ergonomics: protocolIds(workplaceErgonomicsProtocols),
+    injury_prevention: protocolIds(injuryPreventionProtocols),
+    domestic_food_safety: protocolIds(domesticFoodSafetyProtocols),
+    pediatric_adolescent: protocolIds(pediatricAdolescentProtocols),
+    diabetes: protocolIds(diabetesProtocols),
+    cardiology: protocolIds(cardiologyProtocols),
+    rheumatology: protocolIds(rheumatologyProtocols),
+    hematology: protocolIds(hematologyProtocols),
+    vascular: protocolIds(vascularProtocols),
+    cardiometabolic: protocolIds(cardiometabolicProtocols),
+    eating_disorder_reds: protocolIds(eatingDisorderRedsProtocols)
+  }
+};
+
+const scenarios = {
+  baseline_all_protocols: summarizeApplied(allProtocols, baseProfile),
+  older_flagged_guidelines: summarizeApplied(guidelineProtocols, olderFocusedProfile),
+  pregnant_hair_protocol: summarizeApplied(requiredProtocols("proto_blueprint_hair"), pregnantProfile),
+  muscle_gain_nutrition: summarizeApplied(
+    requiredProtocols("proto_blueprint_nutrition", "proto_blueprint_sleep"),
+    muscleGainProfile
+  ),
+  preventive_female_52_with_risk_flags: summarizeApplied(preventiveProtocols, preventiveProfile),
+  supplement_heavy_flagged_profile: summarizeApplied(supplementProtocols, supplementProfile),
+  lifestyle_recovery_flagged_profile: summarizeApplied(lifestyleProtocols, lifestyleProfile),
+  nutrition_metabolic_flagged_profile: summarizeApplied(nutritionProtocols, nutritionProfile),
+  environment_prevention_flagged_profile: summarizeApplied(environmentProtocols, environmentProfile),
+  clinician_managed_therapy_profile: summarizeApplied(clinicalProtocols, clinicalProfile),
+  behavioral_health_addiction_profile: summarizeApplied(behavioralHealthProtocols, behavioralHealthProfile),
+  serious_mental_illness_neurodevelopment_profile: summarizeApplied(seriousMentalIllnessProtocols, seriousMentalIllnessProfile),
+  autism_idd_neurodevelopment_profile: summarizeApplied(autismIddProtocols, autismIddProfile),
+  musculoskeletal_pain_headache_profile: summarizeApplied(mskProtocols, mskPainProfile),
+  gastrointestinal_liver_profile: summarizeApplied(gastroLiverProtocols, gastroLiverProfile),
+  renal_urologic_reproductive_profile: summarizeApplied(renalUrologicReproductiveProtocols, renalUrologicReproductiveProfile),
+  respiratory_allergy_profile: summarizeApplied(respiratoryAllergyProtocols, respiratoryAllergyProfile),
+  dermatology_wound_profile: summarizeApplied(dermatologyWoundProtocols, dermatologyWoundProfile),
+  hair_scalp_profile: summarizeApplied(hairScalpProtocols, hairScalpProfile),
+  contraception_reproductive_autonomy_profile: summarizeApplied(contraceptionProtocols, contraceptionProfile),
+  immunization_operations_profile: summarizeApplied(immunizationProtocols, immunizationProfile),
+  perioperative_optimization_recovery_profile: summarizeApplied(perioperativeProtocols, perioperativeProfile),
+  gynecologic_health_profile: summarizeApplied(gynecologicProtocols, gynecologicHealthProfile),
+  hepatology_pancreatobiliary_profile: summarizeApplied(hepatologyPancreatobiliaryProtocols, hepatologyPancreatobiliaryProfile),
+  eye_vision_profile: summarizeApplied(eyeVisionProtocols, eyeVisionProfile),
+  neurology_cognitive_profile: summarizeApplied(neurologyCognitiveProtocols, neurologyCognitiveProfile),
+  oncology_survivorship_profile: summarizeApplied(oncologySurvivorshipProtocols, oncologySurvivorshipProfile),
+  infectious_travel_profile: summarizeApplied(infectiousTravelProtocols, infectiousTravelProfile),
+  perinatal_pregnancy_postpartum_profile: summarizeApplied(perinatalProtocols, perinatalProfile),
+  endocrine_reproductive_profile: summarizeApplied(endocrineReproductiveProtocols, endocrineReproductiveProfile),
+  geriatric_independence_profile: summarizeApplied(geriatricProtocols, geriatricProfile),
+  oral_system_health_profile: summarizeApplied(oralProtocols, oralHealthProfile),
+  sleep_circadian_disorders_profile: summarizeApplied(sleepDisorderProtocols, sleepDisordersProfile),
+  hydration_thermoregulation_breath_profile: summarizeApplied(hydrationThermoregulationBreathProtocols, hydrationThermoregulationBreathProfile),
+  social_purpose_grief_caregiver_profile: summarizeApplied(socialPurposeGriefCaregiverProtocols, socialPurposeGriefCaregiverProfile),
+  hearing_tinnitus_vestibular_profile: summarizeApplied(hearingTinnitusVestibularProtocols, hearingTinnitusVestibularProfile),
+  workplace_ergonomics_profile: summarizeApplied(workplaceErgonomicsProtocols, workplaceErgonomicsProfile),
+  home_community_injury_prevention_profile: summarizeApplied(injuryPreventionProtocols, injuryPreventionProfile),
+  domestic_food_safety_profile: summarizeApplied(domesticFoodSafetyProtocols, domesticFoodSafetyProfile),
+  pediatric_adolescent_prevention_profile: summarizeApplied(pediatricAdolescentProtocols, pediatricAdolescentProfile),
+  diabetes_prevention_self_management_profile: summarizeApplied(diabetesProtocols, diabetesSelfManagementProfile),
+  cardiovascular_disease_management_profile: summarizeApplied(cardiologyProtocols, cardiologyManagementProfile),
+  rheumatology_autoimmune_profile: summarizeApplied(rheumatologyProtocols, rheumatologyAutoimmuneProfile),
+  hematology_blood_health_profile: summarizeApplied(hematologyProtocols, hematologyBloodHealthProfile),
+  vascular_medicine_profile: summarizeApplied(vascularProtocols, vascularMedicineProfile),
+  cardiometabolic_risk_profile: summarizeApplied(cardiometabolicProtocols, cardiometabolicRiskProfile),
+  eating_disorder_reds_profile: summarizeApplied(eatingDisorderRedsProtocols, eatingDisorderRedsProfile),
+  duplicate_sauna_collision: summarizeApplied(
+    requiredProtocols("proto_blueprint_exercise", "proto_blueprint_nutrition"),
+    baseProfile
+  )
+};
+
+console.log(JSON.stringify({ questions, scenarios }, null, 2));
+
+function summarizeStack(stack: PersonalizedStack) {
+  return {
+    unit_count: stack.units.length,
+    unit_ids: stack.units.map((unit) => unit.id).sort(),
+    daily_slots: Object.fromEntries(
+      Object.entries(stack.schedule.daily)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([slot, units]) => [slot, units.map((unit) => unit.unit_id).sort()])
+    ),
+    weekly_slots: Object.fromEntries(
+      Object.entries(stack.schedule.weekly)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([slot, units]) => [slot, units.map((unit) => unit.unit_id).sort()])
+    ),
+    evidence_summary: stack.evidence_summary,
+    cost_per_month_usd: stack.cost_per_month_usd,
+    review_required: stack.review_required,
+    collisions: stack.validation.collisions
+  };
+}
+
+function summarizeApplied(protocols: Protocol[], profile: UserProfileInput) {
+  return summarizeStack(apply(protocols, profile, library));
+}
+
+function smokeProfile(overrides: Partial<UserProfileInput> & Pick<UserProfileInput, "user_id">) {
+  return UserProfileSchema.parse({ ...baseProfile, ...overrides });
+}
+
+function protocolIds(protocols: Protocol[]): string[] {
+  return protocols.map((protocol) => protocol.id).sort();
+}
+
+function requiredProtocol(id: string) {
+  const protocol = library.getProtocol(id);
+  if (!protocol) {
+    throw new Error(`Missing protocol ${id}`);
+  }
+  return protocol;
+}
+
+function requiredProtocols(...ids: string[]): Protocol[] {
+  return ids.map(requiredProtocol);
+}
+
+function protocolsByPrefix(...prefixes: string[]) {
+  return protocolsByMatch({ prefixes });
+}
+
+function protocolsById(ids: string[]) {
+  return protocolsByMatch({ ids });
+}
+
+function protocolsByMatch({ prefixes = [], ids = [] }: { prefixes?: string[]; ids?: string[] }) {
+  const idSet = new Set(ids);
+  return allProtocols.filter(
+    (protocol) => idSet.has(protocol.id) || prefixes.some((prefix) => protocol.id.startsWith(prefix))
+  );
+}
+
+function unitIdsByCategory(category: Category): string[] {
+  return library.getUnitsByCategory(category).map((unit) => unit.id).sort();
+}
+
+function unitIdsByMechanism(mechanism: string): string[] {
+  return library.getUnitsByMechanism(mechanism).map((unit) => unit.id).sort();
+}
+
+function unitIdsByAnyMechanism(...mechanisms: string[]): string[] {
+  return [...new Set(mechanisms.flatMap((mechanism) => unitIdsByMechanism(mechanism)))].sort();
+}
+
+function countBy(values: string[]): Record<string, number> {
+  return Object.fromEntries(
+    [...values.reduce((counts, value) => counts.set(value, (counts.get(value) ?? 0) + 1), new Map<string, number>())].sort(
+      ([a], [b]) => a.localeCompare(b)
+    )
+  );
+}
+
+function flagSet(enabled: string, overrides: Record<string, boolean> = {}): Record<string, boolean> {
+  return {
+    ...Object.fromEntries(enabled.split(" ").map((flag) => [flag, true])),
+    ...overrides
+  };
+}
