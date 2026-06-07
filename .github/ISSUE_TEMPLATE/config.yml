@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security or unsafe clinical behavior
+    url: https://github.com/chrisdeweese/health-protocol-engine/security/policy
+    about: Report vulnerabilities or unsafe clinical behavior privately, not in public issues.
+  - name: Medical questions
+    url: https://github.com/chrisdeweese/health-protocol-engine#safety-boundary
+    about: This project is a research/developer toolkit and does not provide medical advice.

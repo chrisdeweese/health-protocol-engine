@@ -1,0 +1,83 @@
+name: Bug Report
+description: Report a deterministic engine, schema, catalog, CLI, or documentation defect.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a project bug.
+
+        Health Protocol Engine is a research/developer toolkit, not medical advice. Do not include personal health information. Do not ask for diagnosis, treatment, dosing, or whether a protocol is safe for a specific person.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps To Reproduce
+      description: Provide a minimal input, command, or code snippet.
+      placeholder: |
+        1. Run `npm run ...`
+        2. Call `composeStack(...)` with ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should have happened?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What happened instead? Include errors, stack traces, or validation paths when available.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Engine composition
+        - Safety validation signals
+        - Conditions
+        - Catalog data
+        - Schemas/types
+        - CLI
+        - Documentation
+        - Build/test tooling
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version Or Commit
+      description: Package version, branch, or commit SHA.
+      placeholder: "0.1.0 or abc1234"
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Node, npm, OS, and package manager versions when relevant.
+      placeholder: |
+        Node:
+        npm:
+        OS:
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety Boundary
+      options:
+        - label: I have removed personal health information.
+          required: true
+        - label: This is not a request for medical advice, diagnosis, treatment, dosing, or individual safety assessment.
+          required: true

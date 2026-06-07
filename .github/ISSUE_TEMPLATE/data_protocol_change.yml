@@ -1,0 +1,88 @@
+name: Catalog Or Protocol Change
+description: Propose a deterministic data, intervention-unit, or protocol update.
+title: "[Catalog]: "
+labels: ["catalog"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for source-backed catalog and protocol changes.
+
+        Health Protocol Engine is a research/developer toolkit. Catalog entries must be evidence-labeled infrastructure data, not medical advice or instructions for a specific person.
+  - type: dropdown
+    id: change_type
+    attributes:
+      label: Change Type
+      options:
+        - Add intervention unit
+        - Update intervention unit
+        - Add protocol
+        - Update protocol
+        - Correct evidence grade or citation
+        - Correct contraindication, review flag, or interaction signal
+        - Remove or deprecate entry
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What catalog or protocol change are you proposing?
+    validations:
+      required: true
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Research Rationale
+      description: Explain the evidence and why the current representation should change.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Sources
+      description: Link guidelines, systematic reviews, RCTs, reputable clinical references, or other source families. Avoid unsupported product claims.
+      placeholder: |
+        - Source name:
+        - URL/DOI:
+        - Relevant scope:
+    validations:
+      required: true
+  - type: dropdown
+    id: evidence_grade
+    attributes:
+      label: Proposed Evidence Grade
+      description: Use conservative grading from docs/CONTRIBUTING.md.
+      options:
+        - A
+        - B
+        - C
+        - D
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: safety
+    attributes:
+      label: Safety And Review Signals
+      description: List contraindications, medication/procedure review needs, pregnancy/lactation concerns, duplicate keys, or interaction classes.
+      placeholder: "Known safety signals, or `None known from proposed sources`."
+    validations:
+      required: true
+  - type: textarea
+    id: affected_ids
+    attributes:
+      label: Affected IDs
+      description: Existing or proposed stable ids, if known.
+      placeholder: |
+        - iv_...
+        - proto_...
+  - type: checkboxes
+    id: boundary
+    attributes:
+      label: Safety Boundary
+      options:
+        - label: This proposal is for structured research/developer data, not user-specific medical advice.
+          required: true
+        - label: I have not included personal health information.
+          required: true
