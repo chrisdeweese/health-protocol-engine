@@ -1,0 +1,58 @@
+{
+  "name": "health-protocol-engine",
+  "version": "0.1.0",
+  "description": "Deterministic TypeScript engine for composing validated health protocol stacks.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./data/*": "./dist/data/*",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "health-protocol-engine": "dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "verify": "node scripts/verify.mjs",
+    "catalog:check": "tsx scripts/check-catalog-integrity.ts",
+    "acceptance": "tsx src/cli.ts",
+    "library:stats": "tsx scripts/library-stats.ts",
+    "smoke:use-cases": "tsx scripts/smoke-use-cases.ts",
+    "example:stack": "tsx examples/generate-stack.ts",
+    "example:rhr": "tsx examples/lower-resting-heart-rate.ts",
+    "pack:dry": "npm pack --dry-run",
+    "prepack": "npm run build"
+  },
+  "keywords": [
+    "health",
+    "protocols",
+    "interventions",
+    "zod",
+    "typescript"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "esbuild": "^0.28.0",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.3",
+    "vitest": "^2.0.2"
+  }
+}
